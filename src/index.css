@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --grid-hour-height: 60px;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+}

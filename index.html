@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0ea5e9" />
+    <title>Weekly Scheduler</title>
+    <script>
+      // Apply theme class ASAP before app and styles load to avoid flicker
+      (function () {
+        try {
+          const raw = localStorage.getItem('weekly-scheduler-theme')
+          let theme = null
+          if (raw) {
+            const parsed = JSON.parse(raw)
+            theme = parsed?.state?.theme
+          }
+          if (!theme) {
+            theme = window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+          }
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark')
+            var meta = document.querySelector('meta[name="theme-color"]')
+            if (meta) meta.setAttribute('content', '#0b1324')
+          }
+        } catch {}
+      })();
+    </script>
+  </head>
+  <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(console.error);
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,88 @@
+{
+  "courses": [
+    {
+      "id": "895350",
+      "name": "Introduction to Communication Networks",
+      "events": [
+        {
+          "id": "895350-01",
+          "category": "lecture",
+          "lecturers": ["Dr. Daniel Smith", "Prof. Jane Doe"],
+          "location": "Room 7, Building 507",
+          "timeSlots": [
+            { "day": "Monday", "from": "16:00", "to": "18:00", "semester": "A" },
+            { "day": "Wednesday", "from": "10:00", "to": "12:00", "semester": "A" }
+          ]
+        },
+        {
+          "id": "895350-02",
+          "category": "lecture",
+          "lecturers": ["Dr. Daniel Smith", "Prof. Jane Doe"],
+          "location": "Room 7, Building 507",
+          "timeSlots": [{ "day": "Sunday", "from": "08:00", "to": "12:00", "semester": "B" }]
+        },
+        {
+          "id": "895350-03",
+          "category": "recitation",
+          "lecturers": ["Mr. John Doe"],
+          "location": "Room 103, Building 604",
+          "timeSlots": [{ "day": "Tuesday", "from": "14:00", "to": "16:00", "semester": "A" }]
+        },
+        {
+          "id": "895350-04",
+          "category": "recitation",
+          "lecturers": ["Dr. Alice Johnson"],
+          "location": "Room 205, Building 302",
+          "timeSlots": [{ "day": "Friday", "from": "13:00", "to": "15:00", "semester": "B" }]
+        }
+      ]
+    },
+    {
+      "id": "801234",
+      "name": "Data Structures",
+      "events": [
+        {
+          "id": "801234-01",
+          "category": "lecture",
+          "lecturers": ["Prof. Alan Turing"],
+          "location": "Auditorium 1",
+          "timeSlots": [{ "day": "Monday", "from": "10:00", "to": "12:00", "semester": "A" }]
+        },
+        {
+          "id": "801234-02",
+          "category": "lecture",
+          "lecturers": ["Prof. Alan Turing"],
+          "location": "Auditorium 1",
+          "timeSlots": [{ "day": "Thursday", "from": "09:00", "to": "11:00", "semester": "A" }]
+        },
+        {
+          "id": "801234-03",
+          "category": "recitation",
+          "lecturers": ["TA Grace Hopper"],
+          "location": "Lab A",
+          "timeSlots": [{ "day": "Wednesday", "from": "12:00", "to": "13:00", "semester": "A" }]
+        }
+      ]
+    },
+    {
+      "id": "701111",
+      "name": "Linear Algebra",
+      "events": [
+        {
+          "id": "701111-01",
+          "category": "lecture",
+          "lecturers": ["Dr. Emmy Noether"],
+          "location": "Room 204",
+          "timeSlots": [{ "day": "Tuesday", "from": "10:00", "to": "12:00", "semester": "B" }]
+        },
+        {
+          "id": "701111-02",
+          "category": "recitation",
+          "lecturers": ["TA Carl Gauss"],
+          "location": "Room 104",
+          "timeSlots": [{ "day": "Thursday", "from": "12:00", "to": "13:30", "semester": "B" }]
+        }
+      ]
+    }
+  ]
+}
