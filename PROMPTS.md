@@ -3,6 +3,8 @@
 > [!CAUTION]
 > All the prompts are laid out here as a one long text, without any separation between them.
 
+> The framework was GitHub Copilot Spaces feature, using GPT-5 as the model.
+
 # Weekly Scheduler
 
 ## Goal:
