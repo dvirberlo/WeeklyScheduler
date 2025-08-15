@@ -4,6 +4,7 @@ import { courseScheduleStatus, canScheduleEvent } from "../store/scheduleStore";
 import { useSettingsStore } from "../store/settingsStore";
 import { useTranslation } from "react-i18next";
 import { COLORS, BORDER_COLORS } from "../ui/theme";
+import { parseHM } from "../utils/time";
 
 export function Sidebar(props: {
   courses: Course[];
@@ -14,7 +15,7 @@ export function Sidebar(props: {
   onClearSelection: () => void;
 }) {
   const { t } = useTranslation();
-  const { semester } = useSettingsStore();
+  const { semester, dir } = useSettingsStore();
   const {
     courses,
     selectedCourseIds,
@@ -23,26 +24,96 @@ export function Sidebar(props: {
     onSelectAll,
     onClearSelection,
   } = props;
+
+  // Basic text search
   const [query, setQuery] = useState("");
+
+  // Filter state
+  const [showFilters, setShowFilters] = useState(true);
+  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set()); // stores English day names
+  const [timeFrom, setTimeFrom] = useState<string>(""); // HH:MM
+  const [timeTo, setTimeTo] = useState<string>("");
+
+  function toggleDay(day: string) {
+    setSelectedDays((prev) => {
+      const next = new Set(prev);
+      if (next.has(day)) next.delete(day);
+      else next.add(day);
+      return next;
+    });
+  }
+
+  function clearFilters() {
+    setSelectedDays(new Set());
+    setTimeFrom("");
+    setTimeTo("");
+    setQuery("");
+  }
 
   const filteredSorted = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const filtered = q
-      ? courses.filter(
-          (c) =>
-            c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)
-        )
-      : courses;
 
+    // Pre-compute numeric bounds for time filtering
+    const hasTimeFilter = timeFrom !== "" || timeTo !== "";
+    const fromMin = timeFrom ? parseHM(timeFrom as any) : null;
+    const toMin = timeTo ? parseHM(timeTo as any) : null;
+
+    function courseMatches(c: Course): boolean {
+      // Day / time filtering considers only timeSlots for current semester
+      let anySlotMatches = false;
+      for (const e of c.events) {
+        for (const ts of e.timeSlots) {
+          if (ts.semester !== semester) continue;
+          // Day filter
+          // (User selected days stored in English day names)
+          if (selectedDays.size > 0 && !selectedDays.has(ts.day)) continue;
+
+          // Time filter (overlap logic)
+          if (hasTimeFilter) {
+            const slotFrom = parseHM(ts.from as any);
+            const slotTo = parseHM(ts.to as any);
+            // Build desired range [filterFrom, filterTo]
+            // If only one side given, treat as open-ended.
+            if (fromMin !== null && slotTo <= fromMin) continue;
+            if (toMin !== null && slotFrom >= toMin) continue;
+          }
+          anySlotMatches = true;
+          break;
+        }
+        if (anySlotMatches) break;
+      }
+      if (selectedDays.size > 0 || hasTimeFilter) {
+        if (!anySlotMatches) return false;
+      }
+      // Text query: match course name or id
+      if (q) {
+        const name = c.name.toLowerCase();
+        const id = c.id.toLowerCase();
+        if (!name.includes(q) && !id.includes(q)) return false;
+      }
+      return true;
+    }
+
+    const base = courses.filter(courseMatches);
+
+    // Selected-first sorting remains
     const selectedSet = new Set(selectedCourseIds);
-    const sorted = [...filtered].sort((a, b) => {
+    const sorted = [...base].sort((a, b) => {
       const aSel = selectedSet.has(a.id) ? 0 : 1;
       const bSel = selectedSet.has(b.id) ? 0 : 1;
       if (aSel !== bSel) return aSel - bSel;
       return a.name.localeCompare(b.name);
     });
     return sorted;
-  }, [courses, selectedCourseIds, query]);
+  }, [
+    courses,
+    selectedCourseIds,
+    query,
+    selectedDays,
+    timeFrom,
+    timeTo,
+    semester,
+  ]);
 
   const selectedSet = useMemo(
     () => new Set(selectedCourseIds),
@@ -69,23 +140,111 @@ export function Sidebar(props: {
     return allCats.some((c) => !chosenCats.has(c));
   }
 
-  // Make the sidebar a column flex container; list gets flex-1 and scrolls
+  const DaysEnglishOrdered: string[] = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
   return (
     <aside className="w-80 shrink-0 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 flex flex-col min-h-0">
-      <div className="p-3 pb-2">
-        <div className="font-semibold">{t("courses")}</div>
-        <div className="mt-2">
+      {/* Search + Filters Header */}
+      <div className="p-3 pb-2 space-y-3 border-b dark:border-slate-700">
+        <div>
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search..."
+            placeholder={t("searchPlaceholder") || "Search..."}
             className="w-full text-sm border rounded px-2 py-1 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 placeholder-slate-400 dark:placeholder-slate-500"
           />
         </div>
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium">{t("filters")}</span>
+            <button
+              onClick={() => setShowFilters((v) => !v)}
+              className="text-xs px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+            >
+              {showFilters ? "−" : "+"}
+            </button>
+          </div>
+          {showFilters && (
+            <div className="space-y-3">
+              {/* Days filter */}
+              <div>
+                <div className="text-xs font-semibold mb-1">
+                  {t("daysFilter")}
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {DaysEnglishOrdered.map((day) => {
+                    const active = selectedDays.has(day);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => toggleDay(day)}
+                        className={`px-2 py-0.5 rounded text-xs border dark:border-slate-700
+                          ${
+                            active
+                              ? "bg-sky-600 text-white border-sky-600"
+                              : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
+                          }`}
+                        title={t(`days.${day}`) as string}
+                      >
+                        {t(`days.${day}`)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Time range filter */}
+              <div>
+                <div className="text-xs font-semibold mb-1">
+                  {t("timeFilter")}
+                </div>
+                <div className={`flex items-center gap-2`}>
+                  <label className="flex items-center gap-1 text-xs">
+                    <span>{t("from")}:</span>
+                    <input
+                      type="time"
+                      value={timeFrom}
+                      onChange={(e) => setTimeFrom(e.target.value)}
+                      className="border rounded px-1 py-0.5 text-xs bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                    />
+                  </label>
+                  <label className="flex items-center gap-1 text-xs">
+                    <span>{t("to")}:</span>
+                    <input
+                      type="time"
+                      value={timeTo}
+                      onChange={(e) => setTimeTo(e.target.value)}
+                      className="border rounded px-1 py-0.5 text-xs bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={clearFilters}
+                  className="text-xs px-2 py-1 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100"
+                >
+                  {t("clearFilters")}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="px-3 pb-2 flex items-center justify-between">
+      {/* Actions / summary */}
+      <div className="px-3 py-2 flex items-center justify-between">
         <div className="text-xs text-slate-600 dark:text-slate-400">
           {t("showing")} {filteredSorted.length} {t("of")} {courses.length}
         </div>
@@ -105,10 +264,16 @@ export function Sidebar(props: {
         </div>
       </div>
 
+      {/* List */}
       <div className="flex-1 min-h-0 overflow-y-auto space-y-2 px-3 pb-3 pr-4">
         {courses.length === 0 && (
           <div className="text-sm text-slate-500 dark:text-slate-400">
             {t("uploadCourses")}
+          </div>
+        )}
+        {courses.length > 0 && filteredSorted.length === 0 && (
+          <div className="text-sm text-slate-500 dark:text-slate-400">
+            {t("noMatches")}
           </div>
         )}
         {filteredSorted.map((c) => {
@@ -166,7 +331,7 @@ export function Sidebar(props: {
         })}
       </div>
 
-      <div className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
+      <div className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400 border-t dark:border-slate-700">
         {t("tipColor")}
       </div>
     </aside>

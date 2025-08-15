@@ -36,7 +36,16 @@ const resources = {
         Thursday: 'Thursday',
         Friday: 'Friday',
         Saturday: 'Saturday'
-      }
+      },
+      // New filter related keys
+      filters: 'Filters',
+      daysFilter: 'Days',
+      timeFilter: 'Time Range',
+      from: 'From',
+      to: 'To',
+      clearFilters: 'Clear Filters',
+      noMatches: 'No courses match current filters',
+      searchPlaceholder: 'Search by name or ID...'
     }
   },
   he: {
@@ -56,7 +65,7 @@ const resources = {
       partiallyScheduled: 'מתוזמן חלקית',
       notScheduled: 'לא מתוזמן',
       blocked: 'לא ניתן להשלים במצב הנוכחי',
-      tipColor: 'נקודת הצבע מופיעה רק עבור קורסים שנבחרו, ותואמת לצבע בלוח.',
+      tipColor: 'נקודת הצבע מופיעה רק עבור קורסים שנבחרו ותואמת לצבע בלוח.',
       semester: 'סמסטר',
       semA: "א'",
       semB: "ב'",
@@ -73,7 +82,16 @@ const resources = {
         Thursday: "יום ה'",
         Friday: "יום ו'",
         Saturday: 'שבת'
-      }
+      },
+      // New filter related keys
+      filters: 'מסננים',
+      daysFilter: 'ימים',
+      timeFilter: 'טווח שעות',
+      from: 'מ',
+      to: 'עד',
+      clearFilters: 'נקה מסננים',
+      noMatches: 'אין קורסים תואמים למסננים',
+      searchPlaceholder: 'חפש לפי שם או מזהה...'
     }
   }
 }
