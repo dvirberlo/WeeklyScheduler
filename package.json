@@ -7,8 +7,10 @@
     "dev": "vite --open",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "collect:html": "uv run scripts/scraper.py",
     "collect:html2csv": "node scripts/html2csv.js ./html ./csv",
-    "collect:csv2json": "node scripts/csv2json.js ./csv --out courses.json --pretty"
+    "collect:csv2json": "node scripts/csv2json.js ./csv --out courses.json --pretty",
+    "collect:all": "python -c \"import shutil, os; [shutil.rmtree(x, ignore_errors=True) for x in ['html', 'csv']]; os.remove('courses.json') if os.path.exists('courses.json') else None\" && uv sync && uv run scripts/scraper.py && node scripts/html2csv.js ./html ./csv && node scripts/csv2json.js ./csv --out courses.json --pretty"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.0",
