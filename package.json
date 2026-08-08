@@ -13,22 +13,22 @@
     "collect:all": "python -c \"import shutil, os; [shutil.rmtree(x, ignore_errors=True) for x in ['html', 'csv']]; os.remove('courses.json') if os.path.exists('courses.json') else None\" && uv sync && uv run scripts/scraper.py && node scripts/html2csv.js ./html ./csv && node scripts/csv2json.js ./csv --out courses.json --pretty"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^5.0.0",
-    "i18next": "^23.11.5",
+    "@vitejs/plugin-react": "^5.2.0",
+    "i18next": "^23.16.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^13.5.0",
-    "zustand": "^4.5.4"
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.4.19",
-    "cheerio": "^1.1.2",
-    "csv-parse": "^5.5.0",
-    "postcss": "^8.4.41",
-    "tailwindcss": "^3.4.10",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.2"
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "autoprefixer": "^10.5.4",
+    "cheerio": "^1.2.0",
+    "csv-parse": "^5.6.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21"
   }
 }
